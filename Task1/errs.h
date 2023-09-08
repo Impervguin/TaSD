@@ -1,0 +1,14 @@
+#ifndef ERRS_H__
+#define ERRS_H__
+
+#define ERR_OK 0
+#define ERR_FIRST_FORMAT 1
+#define ERR_SECOND_FORMAT 2
+#define ERR_FIRST_MANTISS_SIZE 3
+#define ERR_SECOND_MANTISS_SIZE 4
+#define ERR_FIRST_ORDER_SIZE 5
+#define ERR_SECOND_ORDER_SIZE 6
+#define ERR_NO_ARGS 7
+#define ERR_RESULT_RANGE 8
+
+#endif
