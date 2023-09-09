@@ -11,4 +11,9 @@
 #define ERR_NO_ARGS 7
 #define ERR_RESULT_RANGE 8
 
+#define ERR_FORMAT 101
+#define ERR_MANTISS_SIZE 102
+#define ERR_ORDER_SIZE 103
+#define ERR_MANTISS_EMPTY 104
+
 #endif
