@@ -4,150 +4,140 @@
 #include <string.h>
 #include <stdio.h>
 
+void make_lf_null(struct long_float *lf)
+{
+    for (size_t i = 0; i < MAX_MANTISS_SIZE; i++)
+        lf->mantiss[i] = 0;
+    lf->mant_sign = 0;
+    lf->order = 0;
+    lf->size = 0;
+}
+
 int strtolf(const char *str, struct long_float *lf, size_t max_mant_size, size_t max_order_size)
 {
-    size_t before_point = 0;
-    size_t nums = 0;
-    size_t zeros_after = 0;
-    size_t zeros_before_point = 0;
-    size_t order_nums = 0;
-    int was_point = 0;
-    int sign = 1;
+    size_t mant_size = 0, order_size = 0;
+    const char *mant_p = str, *mant_e = NULL, *order_p = NULL, *order_e = NULL;
+    char order_sign = 1;
+    char sign = 1;
 
-    size_t i = 0;
-    int rc = ERR_OK;
-
-    // Проверяем мантиссу на правильный формат и считаем ее длину в цифрах
-    for (; str[i] != 'E' && str[i] != '\0' && !rc; i++)
+    if ((*mant_p) == '-' || (*mant_p) == '+')
     {
-        if (str[i] == '0' && nums)
-        {
-            if (was_point)
-                zeros_after++;
-            if (!was_point)
-                zeros_before_point++;
-        }
-        else if (str[i] > '0' && str[i] <= '9')
-        {
-            nums += zeros_after + zeros_before_point;
-            before_point += zeros_before_point;
-            zeros_after = 0, zeros_before_point = 0;
-        }
-
-        if (str[i] <= '9' && str[i] > '0')
-        {
-            nums++;
-            if (!was_point)
-                before_point++;
-        } else if (str[i] == '0');  
-        else if (str[i] == '.' && !was_point)
-            was_point = 1;
-        else if (str[i] == '+' && (!nums && !was_point))
-            sign = 1;
-        else if (str[i] == '-' && (!nums && !was_point))
+        if ((*mant_p) == '-')
             sign = 0;
-        else
-            rc = ERR_FORMAT;  
+        mant_p++;
     }
+
+    while (*mant_p == '0')
+        mant_p++;
     
-    // Проверяем порядок на правильность ввода
-    if (str[i] != '\0' && !rc)
+    size_t now_zeros = 0;
+    int was_point = 0;
+
+    const char *now = mant_p;
+    for (; *now != '\0' && *now != 'E'; now++)
     {
-        for (i++; str[i] != '\0' && !rc; i++)
+        if (*now > '0' && *now <= '9')
+            {
+                mant_size += 1 + now_zeros;
+                now_zeros = 0;
+                mant_e = now;
+            }
+        else if (*now == '0')
+            now_zeros++;
+        else if (*now == '.' && !was_point)
+            was_point = 1;
+        else
+            return ERR_FORMAT;
+    }
+
+    if (*now == 'E')
+    {
+        now++;
+        if ((*now) == '-' || (*now) == '+')
         {
-            if (str[i] >= '0' && str[i] <= '9')
-                order_nums++;
-            else if (str[i] == '+' && !order_nums);
-            else if (str[i] == '-' && !order_nums);
+        if ((*now) == '-')
+            order_sign = 0;
+        now++;
+        }
+        
+        while (*now == '0')
+            now++;
+
+        order_p = order_e = now;
+        for (; *now != '\0'; now++)
+        {
+            if (*now >= '0' && *now <= '9')
+            {
+                order_size++;
+                order_e = now;
+            }
             else
-                rc = ERR_FORMAT;
+                return ERR_FORMAT;
         }
+        if (order_size == 0)
+            return ERR_FORMAT;
     }
 
-    // Проверяем размеры мантиссы и порядка
-    if (!rc)
-    {
-        if (nums > max_mant_size)
-            rc = ERR_MANTISS_SIZE;
-        else if (nums == 0)
-            rc = ERR_MANTISS_EMPTY;
-        else if (order_nums > max_order_size)
-            rc = ERR_ORDER_SIZE;
-    }
-
-    // Считываем число в структуру
-    if (!rc)
-    {
-        // Обнуляем значения в структуре
-        for (size_t j = 0; j < ARR_MANTISS_SIZE; j++)
-            lf->mantiss[j] = 0;
-        lf->order = 0;
-
-        lf->mant_sign = sign;
-
-        // Переводим мантиссу
-        int tmp = 0;
-        // size_t max_nums = nums;
-        for (i = 0; nums > 0; i++)
-        {
-            if (str[i] != '.')
-            {
-                if (nums % CELL_BASE == 0)
-                {
-                    lf->mantiss[nums / CELL_BASE] = tmp;
-                    tmp = 0;
-                }
-                tmp *= 10;
-                tmp += (int) str[i] - '0';
-                nums--;
-            }
-        }
-        lf->mantiss[nums / CELL_BASE] = tmp;
-
-        if (order_nums)
-            while (str[i] != 'E' && str[i] != '\0')
-                i++;
-        // Переводим порядок
-        if (str[i] == 'E')
-        {
-            int modif = 1;
-            int tmp = 0;   
-            if (str[i + 1] == '+' || str[i + 1] == '-')
-            {
-                i++;
-                if (str[i] == '-')
-                    modif = -1;
-            }
-
-            for (i++; str[i] != '\0' && !rc; i++)
-            {
-                tmp *= 10;
-                tmp += (int) str[i] - '0';
-            }
-            tmp *= modif;
-            lf->order = tmp; 
-        }
-        lf->order += before_point + zeros_before_point;
-    }
-
-    return rc;
-}
-
-int check_lf_order(const struct long_float *lf, size_t order_size)
-{
-    int tmp = lf->order;
-    size_t len = 0;
-    while (tmp != 0)
-    {
-        tmp %= 10;
-        tmp /= 10;
-        ++len;
-    }
-
-    if (len > order_size)
+    if (mant_size == 0)
+        return ERR_MANTISS_EMPTY;
+    if (mant_size > max_mant_size)
+        return ERR_FIRST_MANTISS_SIZE;
+    if (order_size > max_order_size)    
         return ERR_ORDER_SIZE;
+    
+    make_lf_null(lf);
+    
+    size_t now_mant = mant_size - 1;
+    size_t order_add = 0;
+    was_point = 0;
+    for (const char *now = mant_p; now <= mant_e; now++)
+    {
+        if (*now != '.')
+        {
+            if (!was_point)
+                order_add++;
+            lf->mantiss[now_mant] = (int) ((*now) - '0');
+            now_mant--;
+        }
+        else
+            was_point = 1;
+    }
+
+    if (order_size != 0)
+    {
+        int tmp = 0;
+        for (const char *now = order_p; now <= order_e; now++)
+        {
+            tmp *= 10;
+            tmp += (int) ((*now) - '0');
+        }
+        if (!order_sign)
+            tmp = -tmp;
+        lf->order = tmp;
+    }
+
+    lf->order += order_add;
+    lf->mant_sign = sign;
+    lf->size = mant_size;
+
     return ERR_OK;
 }
+
+// int check_lf_order(const struct long_float *lf, size_t order_size)
+// {
+//     int tmp = lf->order;
+//     size_t len = 0;
+//     while (tmp != 0)
+//     {
+//         tmp %= 10;
+//         tmp /= 10;
+//         ++len;
+//     }
+
+//     if (len > order_size)
+//         return ERR_ORDER_SIZE;
+//     return ERR_OK;
+// }
 
 
 // static size_t count_int_len(int a)
@@ -163,59 +153,19 @@ int check_lf_order(const struct long_float *lf, size_t order_size)
 // }
 void print_lf(const struct long_float *lf)
 {
-    size_t cells = 0;
-    for (size_t i = 0; i < ARR_MANTISS_SIZE; i++)
-        if (lf->mantiss[i] != 0)
-            cells = i + 1;
-    if (lf->mant_sign == 0)
-        printf("-");
-    else
+    if (lf->mant_sign == 1)
         printf("+");
-    printf("0.");
+    else
+        printf("-");
 
-    if (cells == 0)
-        printf("0");
-    else if (cells == 1)
+    printf("0.");
+    for (int i = lf->size - 1; i >= 0; i--)
     {
-        int tmp = lf->mantiss[--cells];
-        while (tmp % 10 == 0)
-            tmp /= 10;
-        printf("%d", tmp);
+        printf("%d", lf->mantiss[i]);
     }
-    else 
-        printf("%d", lf->mantiss[--cells]);
-    while (cells > 1)
-    {
-        char tmp[CELL_BASE + 1];
-        tmp[CELL_BASE - 1] = '\0';
-        int num = lf->mantiss[cells - 1];
-        for (size_t j = CELL_BASE; j > 0; j--)
-        {
-            if (num != 0)
-            {
-                tmp[j - 1] = ((char) (num % 10)) + '0';
-                num /= 10; 
-            }
-            else 
-                tmp[j] = '0';
-        }
-        printf("%s", tmp);
-        cells--;
-    }
-    if (cells == 1)
-    {
-        int tmp = lf->mantiss[--cells];
-        char str_tmp[CELL_BASE + 1];
-        str_tmp[CELL_BASE] = '\0';
-        for (size_t i = 0; i < CELL_BASE; i++)
-        {
-            str_tmp[CELL_BASE - i - 1] = (char)(tmp % 10) + '0';
-            tmp /= 10;
-        }
-            
-        for (size_t i = CELL_BASE - 1; i > 0 && str_tmp[i] == '0'; i++)
-            str_tmp[i] = '\0';
-        printf("%s", str_tmp);
-    }
-    printf("E%d\n", lf->order);
+    printf("E");
+    if (lf->order >= 0)
+        printf("+");
+    printf("%d", lf->order);
+    printf("\n");
 }
