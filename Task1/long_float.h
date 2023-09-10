@@ -4,10 +4,11 @@
 #include <stddef.h>
 
 #define CELL_BASE 4
+#define CELL_DEC 10000
 
 #define MAX_MANTISS_SIZE 40
 
-#define ARR_MANTISS_SIZE (MAX_MANTISS_SIZE / CELL_BASE + (MAX_MANTISS_SIZE % CELL_BASE) != 0)
+#define ARR_MANTISS_SIZE (MAX_MANTISS_SIZE / CELL_BASE + ((MAX_MANTISS_SIZE % CELL_BASE) != 0))
 
 struct long_float
 {

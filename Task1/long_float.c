@@ -8,6 +8,8 @@ int strtolf(const char *str, struct long_float *lf, size_t max_mant_size, size_t
 {
     size_t before_point = 0;
     size_t nums = 0;
+    size_t zeros_after = 0;
+    size_t zeros_before_point = 0;
     size_t order_nums = 0;
     int was_point = 0;
     int sign = 1;
@@ -18,12 +20,27 @@ int strtolf(const char *str, struct long_float *lf, size_t max_mant_size, size_t
     // Проверяем мантиссу на правильный формат и считаем ее длину в цифрах
     for (; str[i] != 'E' && str[i] != '\0' && !rc; i++)
     {
-        if (str[i] <= '9' && str[i] >= '0')
+        if (str[i] == '0' && nums)
+        {
+            if (was_point)
+                zeros_after++;
+            if (!was_point)
+                zeros_before_point++;
+        }
+        else if (str[i] > '0' && str[i] <= '9')
+        {
+            nums += zeros_after + zeros_before_point;
+            before_point += zeros_before_point;
+            zeros_after = 0, zeros_before_point = 0;
+        }
+
+        if (str[i] <= '9' && str[i] > '0')
         {
             nums++;
             if (!was_point)
                 before_point++;
-        } else if (str[i] == '.' && !was_point)
+        } else if (str[i] == '0');  
+        else if (str[i] == '.' && !was_point)
             was_point = 1;
         else if (str[i] == '+' && (!nums && !was_point))
             sign = 1;
@@ -70,7 +87,8 @@ int strtolf(const char *str, struct long_float *lf, size_t max_mant_size, size_t
 
         // Переводим мантиссу
         int tmp = 0;
-        for (i = 0; str[i] != 'E' && str[i] != '\0'; i++)
+        // size_t max_nums = nums;
+        for (i = 0; nums > 0; i++)
         {
             if (str[i] != '.')
             {
@@ -85,7 +103,10 @@ int strtolf(const char *str, struct long_float *lf, size_t max_mant_size, size_t
             }
         }
         lf->mantiss[nums / CELL_BASE] = tmp;
-        
+
+        if (order_nums)
+            while (str[i] != 'E' && str[i] != '\0')
+                i++;
         // Переводим порядок
         if (str[i] == 'E')
         {
@@ -93,7 +114,7 @@ int strtolf(const char *str, struct long_float *lf, size_t max_mant_size, size_t
             int tmp = 0;   
             if (str[i + 1] == '+' || str[i + 1] == '-')
             {
-                i++
+                i++;
                 if (str[i] == '-')
                     modif = -1;
             }
@@ -104,9 +125,9 @@ int strtolf(const char *str, struct long_float *lf, size_t max_mant_size, size_t
                 tmp += (int) str[i] - '0';
             }
             tmp *= modif;
-            tmp += before_point;
             lf->order = tmp; 
         }
+        lf->order += before_point + zeros_before_point;
     }
 
     return rc;
@@ -119,6 +140,7 @@ int check_lf_order(const struct long_float *lf, size_t order_size)
     while (tmp != 0)
     {
         tmp %= 10;
+        tmp /= 10;
         ++len;
     }
 
@@ -128,16 +150,17 @@ int check_lf_order(const struct long_float *lf, size_t order_size)
 }
 
 
-static size_t count_int_len(int a)
-{
-    size_t len = 0;
-    while (a != 0)
-    {
-        len++;
-    }
-    return len;
+// static size_t count_int_len(int a)
+// {
+//     size_t len = 0;
+//     while (a != 0)
+//     {
+//         len++;
+//         a /= 10;
+//     }
+//     return len;
     
-}
+// }
 void print_lf(const struct long_float *lf)
 {
     size_t cells = 0;
@@ -150,7 +173,18 @@ void print_lf(const struct long_float *lf)
         printf("+");
     printf("0.");
 
-    while (cells > 0)
+    if (cells == 0)
+        printf("0");
+    else if (cells == 1)
+    {
+        int tmp = lf->mantiss[--cells];
+        while (tmp % 10 == 0)
+            tmp /= 10;
+        printf("%d", tmp);
+    }
+    else 
+        printf("%d", lf->mantiss[--cells]);
+    while (cells > 1)
     {
         char tmp[CELL_BASE + 1];
         tmp[CELL_BASE - 1] = '\0';
@@ -159,7 +193,7 @@ void print_lf(const struct long_float *lf)
         {
             if (num != 0)
             {
-                tmp[j] = ((char) (num % 10)) + '0';
+                tmp[j - 1] = ((char) (num % 10)) + '0';
                 num /= 10; 
             }
             else 
@@ -168,6 +202,20 @@ void print_lf(const struct long_float *lf)
         printf("%s", tmp);
         cells--;
     }
-    printf("E%d", lf->order);
+    if (cells == 1)
+    {
+        int tmp = lf->mantiss[--cells];
+        char str_tmp[CELL_BASE + 1];
+        str_tmp[CELL_BASE] = '\0';
+        for (size_t i = 0; i < CELL_BASE; i++)
+        {
+            str_tmp[CELL_BASE - i - 1] = (char)(tmp % 10) + '0';
+            tmp /= 10;
+        }
+            
+        for (size_t i = CELL_BASE - 1; i > 0 && str_tmp[i] == '0'; i++)
+            str_tmp[i] = '\0';
+        printf("%s", str_tmp);
+    }
+    printf("E%d\n", lf->order);
 }
-
