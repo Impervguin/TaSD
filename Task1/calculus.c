@@ -41,7 +41,7 @@ int multiplication(const struct long_float *flf, const struct long_float *slf, s
     if (arr_s > max_mant_size)
     {
         size_t diff = arr_s - max_mant_size;
-        rlf->order += diff;
+        // rlf->order += diff;
         for (size_t i = max_mant_size; i < arr_s && tmp_arr[i] == 0; i++)
             diff++;
         shift_array_left(tmp_arr, arr_s, diff);

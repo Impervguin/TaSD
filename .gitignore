@@ -50,3 +50,14 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# gcov files
+*.c.gcov
+*.gcda
+*.gcno
+*.pch
+*.gch
+
+# Vs code
+
+*/.vscode
