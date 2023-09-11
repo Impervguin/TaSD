@@ -25,9 +25,9 @@ int multiplication(const struct long_float *flf, const struct long_float *slf, s
         for (size_t j = 0; j < slf->size; j++)
         {
             tmp_arr[i + j] += flf->mantiss[i] * slf->mantiss[j];
-            for (size_t k = i + j; k < TMP_ARR_SIZE - 1 && tmp_arr[k] > CELL_BASE; k++)
+            for (size_t k = i + j; k < TMP_ARR_SIZE - 1 && tmp_arr[k] >= CELL_BASE; k++)
             {
-                tmp_arr[k + 1] = tmp_arr[k] / 10;
+                tmp_arr[k + 1] += tmp_arr[k] / 10;
                 tmp_arr[k] %= 10; 
             }
         }
@@ -49,6 +49,10 @@ int multiplication(const struct long_float *flf, const struct long_float *slf, s
     }
 
     rlf->mant_sign = ((flf->mant_sign && !slf->mant_sign) || (!flf->mant_sign && slf->mant_sign)) ? 0 : 1;
-    rlf->order += slf->order + flf->order;
+    rlf->order += slf->order + flf->order - 1;
     rlf->size = arr_s;
+    for (size_t i = 0; i < arr_s; i++)
+        rlf->mantiss[i] = tmp_arr[i];
+
+    return ERR_OK;
 }

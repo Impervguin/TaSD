@@ -1,0 +1,39 @@
+        -:    0:Source:main.c
+        -:    0:Graph:main.gcno
+        -:    0:Data:main.gcda
+        -:    0:Runs:12
+        -:    1:#include <stdio.h>
+        -:    2:#include "long_float.h"
+        -:    3:#include "calculus.h"
+        -:    4:#include "errs.h"
+        -:    5:
+        -:    6:
+        -:    7:#define MAX_FIRST_MANTISS_SIZE 35
+        -:    8:#define MAX_SECOND_MANTISS_SIZE 40
+        -:    9:#define MAX_RESULT_MANTISS_SIZE 40
+        -:   10:
+        -:   11:#define MAX_FIRST_ORDER_SIZE 5
+        -:   12:#define MAX_SECOND_ORDER_SIZE 5
+        -:   13:#define MAX_RESULT_ORDER_SIZE 5
+        -:   14:
+        -:   15:
+       12:   16:int main (int argc, char **argv)
+        -:   17:{
+        -:   18:    struct long_float flf, slf, rlf;
+       12:   19:    int rc = ERR_OK;
+       12:   20:    if (argc != 3)
+    #####:   21:        rc = ERR_NO_ARGS;
+       12:   22:    if (!rc)
+       12:   23:        rc = strtolf(argv[1], &flf, MAX_FIRST_MANTISS_SIZE, MAX_FIRST_ORDER_SIZE);
+       12:   24:    if (!rc)
+       12:   25:        rc = strtolf(argv[2], &slf, MAX_SECOND_MANTISS_SIZE, MAX_SECOND_ORDER_SIZE);
+       12:   26:    if (!rc)
+        -:   27:    {
+       12:   28:        multiplication(&flf, &slf, &rlf, MAX_RESULT_MANTISS_SIZE);
+        -:   29:        // rc = check_lf_order(&rlf, MAX_RESULT_ORDER_SIZE);
+        -:   30:    }
+       12:   31:    if (!rc)
+       12:   32:        print_lf(&rlf);
+        -:   33:    
+       12:   34:    return rc;
+        -:   35:}

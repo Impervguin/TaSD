@@ -31,6 +31,9 @@ int strtolf(const char *str, struct long_float *lf, size_t max_mant_size, size_t
         mant_p++;
     
     size_t now_zeros = 0;
+    size_t zeros_before_point = 0; // Хранит количество нулей до точки, но после последней значащей цифры.
+    // Нужна для увеличения порядка числа
+    
     int was_point = 0;
 
     const char *now = mant_p;
@@ -41,9 +44,15 @@ int strtolf(const char *str, struct long_float *lf, size_t max_mant_size, size_t
                 mant_size += 1 + now_zeros;
                 now_zeros = 0;
                 mant_e = now;
+                zeros_before_point = 0;
             }
         else if (*now == '0')
+        {
             now_zeros++;
+            if (!was_point)
+                zeros_before_point++;
+        }
+            
         else if (*now == '.' && !was_point)
             was_point = 1;
         else
@@ -116,7 +125,7 @@ int strtolf(const char *str, struct long_float *lf, size_t max_mant_size, size_t
         lf->order = tmp;
     }
 
-    lf->order += order_add;
+    lf->order += order_add + zeros_before_point;
     lf->mant_sign = sign;
     lf->size = mant_size;
 
