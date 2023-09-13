@@ -15,5 +15,8 @@
 #define ERR_MANTISS_SIZE 102
 #define ERR_ORDER_SIZE 103
 #define ERR_MANTISS_EMPTY 104
+#define ERR_IO 105
+#define ERR_STR_RANGE 106
+#define ERR_STR_EMPTY 107
 
 #endif

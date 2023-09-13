@@ -2,7 +2,7 @@
 
 n=0
 function find_after_string {
-    sep=""
+    sep="Результат: "
     found=0
     while read -r line; do
         if [[ "$line" == *"$sep"* ]] && [[ $found -eq 0 ]]; then

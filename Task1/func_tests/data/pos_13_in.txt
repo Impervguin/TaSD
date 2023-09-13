@@ -1,6 +1,2 @@
-apple
-pick
-120
-damn
-aba
-320
+1.2E1
+2

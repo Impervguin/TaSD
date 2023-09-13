@@ -19,7 +19,7 @@ int multiplication(const struct long_float *flf, const struct long_float *slf, s
 
     for (size_t i = 0; i < TMP_ARR_SIZE; i++)
         tmp_arr[i] = 0;
-
+    int norm_size = flf->size + slf->size;
     for (size_t i = 0; i < flf->size; i++)
     {
         for (size_t j = 0; j < slf->size; j++)
@@ -37,7 +37,7 @@ int multiplication(const struct long_float *flf, const struct long_float *slf, s
     for (size_t i = 0; i < TMP_ARR_SIZE; i++)
         if (tmp_arr[i] != 0)
             arr_s = i + 1;
-    
+    int order_add = (int)(arr_s) - norm_size;
     if (arr_s > max_mant_size)
     {
         size_t diff = arr_s - max_mant_size;
@@ -49,7 +49,10 @@ int multiplication(const struct long_float *flf, const struct long_float *slf, s
     }
 
     rlf->mant_sign = ((flf->mant_sign && !slf->mant_sign) || (!flf->mant_sign && slf->mant_sign)) ? 0 : 1;
-    rlf->order += slf->order + flf->order - 1;
+    if (flf->size == 0 || slf->size == 0)
+        rlf->order = 0;
+    else 
+        rlf->order += slf->order + flf->order + order_add;
     rlf->size = arr_s;
     for (size_t i = 0; i < arr_s; i++)
         rlf->mantiss[i] = tmp_arr[i];

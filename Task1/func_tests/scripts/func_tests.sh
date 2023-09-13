@@ -7,11 +7,10 @@ NMEMORY_OUTPUT=2  # Память - провал, данные - успех
 NMEMORY_NOUTPUT=3 # Память - успех, данные - провал
 MEMORY_NOUTPUT=4  # Память - провал, данные - провал
 
+
 # Путь к тестам и скриптам из папки проекта
 PATH_TO_DATA="./func_tests/data"
-PATH_TO_BDATA="./func_tests/bin_data"
 PATH_TO_SCRIPTS="./func_tests/scripts/"
-FILE_OUT="./func_tests/out_file"
 
 # Счетчики различных проваленных и общега числа тестов
 fpt_num=0 # Число проваленных позитивных тестов
@@ -24,19 +23,17 @@ SUCCESS="\033[92m"
 ERROR="\033[91m"
 INFO2="\033[93m"
 RESET="\033[0m"
-
-# Функция для вывода информации о тесте
 function test_output {
   if [[ $rc -eq $OK ]]; then
     echo -e Test: "$SUCCESS"passed"$RESET"
   else
     echo -e Test: "$ERROR"failed"$RESET"
-    echo -e Input: "$INFO2""$(cat "$in_f")""$RESET"
-    echo -e Expected output: "$INFO2""$(cat "$exp_f")""$RESET"
-    echo -e Output: "$INFO2""$(cat "$FILE_OUT")""$RESET"
+    echo -e Input: "$INFO2""$(cat "$input")""$RESET"
+    echo -e Expected output: "$INFO2""$(cat "$expected")""$RESET"
+    echo -e Output: "$INFO2""$(cat "$out")""$RESET"
   fi
 }
-# Функция для вывода информации о тесте с проверкой памяти
+
 function test_memory_output {
   if [[ $rc -eq $MEMORY_OUTPUT ]]; then
     local test_passed=1
@@ -60,9 +57,9 @@ function test_memory_output {
     echo -e Test: "$SUCCESS"passed"$RESET"
   else
     echo -e Test: "$ERROR"failed"$RESET"
-    echo -e Input: "$INFO2""$(cat "$in_f")""$RESET"
-    echo -e Expected output: "$INFO2""$(cat "$exp_f")""$RESET"
-    echo -e Output: "$INFO2""$(cat "$FILE_OUT")""$RESET"
+    echo -e Input: "$INFO2""$(cat "$input")""$RESET"
+    echo -e Expected output: "$INFO2""$(cat "$expected")""$RESET"
+    echo -e Output: "$INFO2""$(cat "$out")""$RESET"
   fi
 }
 
@@ -73,177 +70,80 @@ for param in "$@"; do
   elif [[ $param == "--mem-check" ]]; then # Ключ проверки памяти с valgrind
     memory=1
     key_mem="--mem-check"
-  elif [[ $param == "-b2t" ]]; then # Ключ возможного перевода вывода из бинарного вида в текстовый
-    B2T=1
-  elif [[ $param == "-t2b" ]]; then # Ключ возможного перевода ввода из текстового вида в двоичный
-    T2B=1
-  elif [[ $param == "-csf" ]]; then # Ключ, показывающий, что меняется исходный файл
-    CSF=1
   fi
   shift
 done
 
-out=$(mktemp) # Файл для выхода программы
+out=$(mktemp)
 # Позитивное тестирование
-for args in "$PATH_TO_DATA"/pos_[0-9][0-9]_args.txt; do # Проходимся по всем входным тестам
-  b_out= # Флаг показывающий, что вывод будет в бинарном виде
-  b_in= # Флаг показывающий, что ввод будет в бинарном виде
+for input in "$PATH_TO_DATA"/pos_[0-9][0-9]_in.txt; do # Проходимся по всем входным тестам
 
-  if [[ "$args" == "$PATH_TO_DATA/pos_[0-9][0-9]_args.txt" ]]; then
-    echo -e "$args""No positive tests found""$RESET"
+  if [[ "$input" == "$PATH_TO_DATA/pos_[0-9][0-9]_in.txt" ]]; then
+    echo -e "$INFO2""No positive tests found""$RESET"
     break
   fi
 
-  test_num=$(echo "$args" | grep -o "[0-9][0-9]") # Номер позитивного теста
-  input=$PATH_TO_DATA/pos_"$test_num"_in.txt # Файл ввода
+  test_num=$(echo "$input" | grep -o "[0-9][0-9]") # Номер позитивного теста
+
   expected=$PATH_TO_DATA/pos_"$test_num"_out.txt # Файл с эталонным выводом
 
-
-  if [[ ! -f $args ]]; then
-    echo -e "$INFO2""No positive test $test_num args found""$RESET"
-    continue
-  fi
-
- # Если нет файла ввода и включен флаг перевода, то ищем в bin_data ввод
-  if [[ ! -f $input ]] && [[ $T2B -eq 1 ]]; then
-    binput=$PATH_TO_BDATA/pos_"$test_num"_in.txt;
-    if [[ -f $binput ]]; then # Если он существует
-      ./func_tests/scripts/b2t.exe t2b "$binput" "$input" # То переводим в двоичный вид и помещаем в data
-      in_f=$binput # Текстовый ввод в bin_data
-      b_in=1 # Ввод в бинарном виде
-    else
-      echo -e "$INFO2""No positive test $test_num input found""$RESET"
-      continue
+  if [[ -f $expected ]]; then # Проверка на существование файла с ожидаемым выводом
+    # Информация о тесте выводится самим скриптом
+    bash "$PATH_TO_SCRIPTS"pos_case.sh "$input" "$expected" "$key_mem" --out="$out"
+    rc=$?
+    # Если код возврата не соответствует OK, тест не прошел по памяти или по данным
+    if [[ $rc -ne $OK ]]; then
+      fpt_num=$((fpt_num + 1))
     fi
-  elif [[ -f $input ]]; then
-    in_f=$input
-  else
-    echo -e "$INFO2""No positive test $test_num input found""$RESET"
-    continue
-  fi
-
-  # Если нет файла вывода и включен флаг перевода, то ищем в bin_data вывод
-  if [[ ! -f $expected ]] && [[ $B2T -eq 1 ]]; then
-      bexpected=$PATH_TO_BDATA/pos_"$test_num"_out.txt;
-      if [[ -f $bexpected ]]; then # Если он существует
-        b_out=1 # Вывод в бинарном виде
-        exp_f=$bexpected # Текстовый вывод в bin_data
+    if [[ $verbose -eq 1 ]]; then
+      echo -e "\n------------------------------\n"
+      echo -e "$INFO2"Positive"$RESET" test "$INFO2""$test_num""$RESET"
+      if [[ $memory -eq 1 ]]; then
+        test_memory_output
       else
-        echo -e "$INFO2""No positive test $test_num output found""$RESET"
-        continue
+        test_output
       fi
-    elif [[ -f $expected ]]; then
-      exp_f=$expected
-    elif [[ ! -f $expected ]]; then
-      echo -e "$INFO2""No positive test $test_num output found""$RESET"
-      continue
-  fi
-  # Ввод в бинарном виде
-
-  if [[ -n $CSF ]]; then
-    csf="-csf"
+    fi
   else
-    csf=""
-  fi
-
-  # Тестируем
-  if [[ -n $b_out ]]; then
-    bash "$PATH_TO_SCRIPTS"pos_case.sh "$args" "$input" "$bexpected" "$key_mem" --out="$out" -b2t "$csf"
-  else
-    bash "$PATH_TO_SCRIPTS"pos_case.sh "$args" "$input" "$expected" "$key_mem" --out="$out" "$csf"
-  fi
-  rc=$?
-#  echo $rc
-  # Если ввод был бинарный, то этот двоичный файл нужно удалить
-  if [[ -n $b_in ]]; then
-    rm "$input"
-  fi
-  # Если код возврата не соответствует OK, тест не прошел по памяти или по данным
-
-
-  if [[ $rc -ne $OK ]]; then
-    fpt_num=$((fpt_num + 1))
-  fi
-  if [[ $verbose -eq 1 ]]; then
-    echo -e "\n------------------------------\n"
-    echo -e "$INFO2"Positive"$RESET" test "$INFO2""$test_num""$RESET"
-    if [[ $memory -eq 1 ]]; then
-      test_memory_output
-    else
-      test_output
+    if [[ $verbose -eq 1 ]]; then
+      echo Cannot find "$expected" file. # Не найлен файл с эталонным выводом
     fi
   fi
   pt_num=$((pt_num + 1))
-  cat /dev/null > $FILE_OUT
 done
 
 # Негативное тестирование
-for args in "$PATH_TO_DATA"/neg_[0-9][0-9]_args.txt; do # Проходимся по всем входным тестам
-  b_out= # Флаг показывающий, что вывод будет в бинарном виде
-  b_in= # Флаг показывающий, что ввод будет в бинарном виде
+for input in "$PATH_TO_DATA"/neg_[0-9][0-9]_in.txt; do
 
-  if [[ "$args" == "$PATH_TO_DATA/neg_[0-9][0-9]_args.txt" ]]; then
-    echo -e "$args""No negative tests found""$RESET"
+  if [[ "$input" == "$PATH_TO_DATA/neg_[0-9][0-9]_in.txt" ]]; then
+    echo -e "$INFO2""No negative tests found""$RESET"
     break
   fi
 
-  test_num=$(echo "$args" | grep -o "[0-9][0-9]") # Номер позитивного теста
-  input=$PATH_TO_DATA/neg_"$test_num"_in.txt # Файл с вводом
+  test_num=$(echo "$input" | grep -o "[0-9][0-9]")
+
   expected=$PATH_TO_DATA/neg_"$test_num"_out.txt # Файл с эталонным выводом
 
-
-  if [[ ! -f $args ]]; then
-    echo -e "$INFO2""No negative test $test_num args found""$RESET"
-    continue
-  fi
-
-  # Если нет файла ввода и включен флаг перевода, то ищем в bin_data ввод
-  if [[ ! -f $input ]] && [[ $T2B -eq 1 ]]; then
-    binput=$PATH_TO_BDATA/neg_"$test_num"_in.txt;
-    if [[ -f $binput ]]; then # Если он существует
-      ./func_tests/scripts/b2t.exe t2b "$binput" "$input" # То переводим в двоичный вид и помещаем в data
-      in_f=$binput # Текстовый ввод в bin_data
-      b_in=1 # Ввод в бинарном виде
-    else
-      echo -e "$INFO2""No negative test $test_num input found""$RESET"
-      continue
+  if [[ -f $expected ]]; then # Проверка на существование файла с ожидаемым выводом
+    # Информация о тесте выводится самим скриптом
+    bash "$PATH_TO_SCRIPTS"neg_case.sh "$input" "$expected" "$key_mem" --out="$out"
+    rc=$?
+    # Если код возврата не соответствует OK, тест не прошел по памяти или по данным
+    if [[ $rc -ne $OK ]]; then
+      fnt_num=$((fnt_num + 1))
     fi
-  elif [[ -f $input ]]; then
-    in_f=$input
+    if [[ $verbose -eq 1 ]]; then
+      echo -e "\n------------------------------\n"
+      echo -e "$INFO2"Negative"$RESET" test "$INFO2""$test_num""$RESET"
+      if [[ $memory -eq 1 ]]; then
+        test_memory_output
+      else
+        test_output
+      fi
+    fi
   else
-    echo -e "$INFO2""No negative test $test_num input found""$RESET"
-    continue
-  fi
-
-  if [[ -n $CSF ]]; then
-    csf="-csf"
-  else
-    csf=""
-  fi
-
-  #Тестируем
-  if [[ -n $b_out ]]; then
-    bash "$PATH_TO_SCRIPTS"neg_case.sh "$args" "$input" "$key_mem" --out="$out" -b2t "$csf"
-  else
-    bash "$PATH_TO_SCRIPTS"neg_case.sh "$args" "$input" "$key_mem" --out="$out" "$csf"
-  fi
-  rc=$?
-#  echo $rc
-  # Если код возврата не соответствует OK, тест не прошел по памяти или по данным
-  if [[ -n $b_in ]]; then
-    rm "$input"
-  fi
-
-  if [[ $rc -ne $OK ]]; then
-    fnt_num=$((fnt_num + 1))
-  fi
-  if [[ $verbose -eq 1 ]]; then
-    echo -e "\n------------------------------\n"
-    echo -e "$INFO2"Negative"$RESET" test "$INFO2""$test_num""$RESET"
-    if [[ $memory -eq 1 ]]; then
-      test_memory_output
-    else
-      test_output
+    if [[ $verbose -eq 1 ]]; then
+      echo Cannot find "$expected" file. # Не найлен файл с эталонным выводом
     fi
   fi
   nt_num=$((nt_num + 1))
