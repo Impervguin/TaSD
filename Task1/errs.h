@@ -18,5 +18,6 @@
 #define ERR_IO 105
 #define ERR_STR_RANGE 106
 #define ERR_STR_EMPTY 107
+#define ERR_RES_ORDER_SIZE 108
 
 #endif

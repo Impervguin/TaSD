@@ -169,7 +169,7 @@ int check_lf_order(const struct long_float *lf, size_t order_size)
     }
 
     if (len > order_size)
-        return ERR_ORDER_SIZE;
+        return ERR_RES_ORDER_SIZE;
     return ERR_OK;
 }
 

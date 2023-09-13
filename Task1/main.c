@@ -76,6 +76,9 @@ int main (void)
     case ERR_STR_RANGE:
         printf("Слишком большая суммарная длина строки\n");
         break;
+    case ERR_RES_ORDER_SIZE:
+        printf("Слишком большой порядок у результирующего числа.\n");
+        break;
     default:
         printf("Неизвестная ошибка.\n");
         break;
