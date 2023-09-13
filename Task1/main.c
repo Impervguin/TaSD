@@ -65,7 +65,7 @@ int main (void)
         printf("Слишком длинная мантисса.\n");
         break;
     case ERR_ORDER_SIZE:
-        printf("Слишеом длинный порядок.\n");
+        printf("Слишком длинный порядок.\n");
         break;
     case ERR_IO:
         printf("Ошибка ввода/вывода.\n");
