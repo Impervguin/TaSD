@@ -15,18 +15,19 @@ void make_lf_null(struct long_float *lf)
 
 int strtolf(const char *str, struct long_float *lf, size_t max_mant_size, size_t max_order_size)
 {
-    size_t mant_size = 0, order_size = 0;
-    const char *mant_p = str, *mant_e = NULL, *order_p = NULL, *order_e = NULL;
-    char order_sign = 1;
-    char sign = 1;
-    int was_zero = 0;
-    size_t now_zeros = 0;
-    size_t zeros_before_point = 0; // Хранит количество нулей до точки, но после последней значащей цифры.
-    // Нужна для увеличения порядка числа
-    size_t zeros_after_point = 0;
-    int was_point = 0;
-    int was_point_in_prep = 0;
+    size_t mant_size = 0, order_size = 0; /// Размеры  мантиссы и порядка
+    const char *mant_p = str, *mant_e = NULL, *order_p = NULL, *order_e = NULL; /// Указатели на начало мантиссы, конец мантиссы, начало порядка, конец порядка
+    char order_sign = 1; ///  Знак порядка
+    char sign = 1; /// Знак числа
+    int was_zero = 0; /// Был ли ноль до цифр
+    size_t now_zeros = 0; /// Хранит количество нулей между цифрами(для того, чтобы в последствии откинуть, еслиэто не значащие нули)
+    size_t zeros_before_point = 0; /// Хранит количество нулей до точки, но после последней значащей цифры.
+    /// Нужна для увеличения порядка числа
+    size_t zeros_after_point = 0; /// Количество нулей после точки, но до первой цифры(после точки)
+    int was_point = 0; /// Была ли точка в число
+    int was_point_in_prep = 0; /// Была ли точка при отбрасывании первых не значащих нулей
 
+    /// Чтение знака
     if ((*mant_p) == '-' || (*mant_p) == '+')
     {
         if ((*mant_p) == '-')
@@ -34,6 +35,7 @@ int strtolf(const char *str, struct long_float *lf, size_t max_mant_size, size_t
         mant_p++;
     }
 
+    /// Чтение незначащих нулей
     while (*mant_p == '0' || *mant_p == '.')
     {
         if (*mant_p == '0')
@@ -53,7 +55,7 @@ int strtolf(const char *str, struct long_float *lf, size_t max_mant_size, size_t
         
     
     
-
+    /// Подсчет размера мантиссы и проверка её формата
     const char *now = mant_p;
     for (; *now != '\0' && *now != 'E'; now++)
     {
@@ -79,6 +81,7 @@ int strtolf(const char *str, struct long_float *lf, size_t max_mant_size, size_t
             return ERR_FORMAT;
     }
 
+    /// Подсчет размера порядка и проверка его порядка
     if (*now == 'E')
     {
         int was_null_order = 0;
@@ -112,6 +115,7 @@ int strtolf(const char *str, struct long_float *lf, size_t max_mant_size, size_t
             return ERR_FORMAT;
     }
 
+    /// Проверки размеров
     if (mant_size == 0 && !zeros_after_point && !was_zero)
         return ERR_MANTISS_EMPTY;
     if (mant_size > max_mant_size)
@@ -119,12 +123,15 @@ int strtolf(const char *str, struct long_float *lf, size_t max_mant_size, size_t
     if (order_size > max_order_size)    
         return ERR_ORDER_SIZE;
     
+    /// Зануляем выходное длинное число
     make_lf_null(lf);
     
-    size_t now_mant = mant_size - 1;
-    size_t order_add = 0;
+    /// Чтение мантиссы
+    size_t now_mant = mant_size - 1; /// Индекс нынешней цифры в длинном числе
+    size_t order_add = 0; /// Добавка к порядку из-за нормализации числа(учитываются только цифры между первой и последней ненуловой)
     if (!was_point_in_prep)
-        was_point = 0; // Вот тут ошибка
+        was_point = 0;
+    
     for (const char *now = mant_p; now <= mant_e; now++)
     {
         if (*now != '.')
@@ -138,6 +145,7 @@ int strtolf(const char *str, struct long_float *lf, size_t max_mant_size, size_t
             was_point = 1;
     }
 
+    /// Чтение порядка
     if (order_size != 0)
     {
         int tmp = 0;
@@ -151,9 +159,9 @@ int strtolf(const char *str, struct long_float *lf, size_t max_mant_size, size_t
         lf->order = tmp;
     }
 
-    lf->order += order_add + zeros_before_point - zeros_after_point;
-    lf->mant_sign = sign;
-    lf->size = mant_size;
+    lf->order += order_add + zeros_before_point - zeros_after_point; /// Порядок
+    lf->mant_sign = sign; /// знак
+    lf->size = mant_size; /// Размер
 
     return ERR_OK;
 }
