@@ -42,7 +42,19 @@ int multiplication(const struct long_float *flf, const struct long_float *slf, s
     {
         size_t diff = arr_s - max_mant_size;
         // rlf->order += diff;
-        for (size_t i = max_mant_size; i < arr_s && tmp_arr[i] == 0; i++)
+
+        // Округление
+        for (size_t i = 0; i < diff; i++)
+            if (tmp_arr[i] >= 5)
+                tmp_arr[i + 1]++;
+        for (size_t i = diff; i < arr_s && tmp_arr[i] > 9; i++)
+        {
+            tmp_arr[i] = 0;
+            tmp_arr[i + 1]++;
+        }
+        
+
+        for (size_t i = diff; i < arr_s && tmp_arr[i] == 0; i++)
             diff++;
         shift_array_left(tmp_arr, arr_s, diff);
         arr_s -= diff;
