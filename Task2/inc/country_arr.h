@@ -1,7 +1,7 @@
 #ifndef COUNTRY_ARR_H__
 #define COUNTRY_ARR_H__
 
-#define MAX_ARRAY_SIZE 10000
+#define MAX_ARRAY_SIZE 7500
 
 #include "country.h"
 #include <stddef.h>

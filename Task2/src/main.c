@@ -11,6 +11,12 @@ long int get_time(struct timeval *time_s, struct timeval *time_e)
     return (time_e -> tv_sec * 1000000 + time_e -> tv_usec) - (time_s -> tv_sec * 1000000 + time_s -> tv_usec);
 }
 
+// void flush_stdin(void)
+// {
+//     int c;
+//     while ((c = getchar()) != '\n' && c != EOF);
+// }
+
 #define MAX_FILE_NAME (32 + 1)
 
 int main(void)
@@ -40,7 +46,7 @@ int main(void)
         else if (action == 1)
         {
             printf("Введите имя файла(Максимальная длина %d): ", MAX_FILE_NAME - 1);
-            rc = str_read(stdin, fname, MAX_ARRAY_SIZE);
+            rc = str_read(stdin, fname, MAX_FILE_NAME);
             if (!rc)
             {
                 if (f != NULL)
@@ -50,9 +56,10 @@ int main(void)
                     rc = ERR_FILE;
                 else
                 {
+                    int des = 0;
                     if (arr.size != 0)
                     {
-                        int des = 0;
+                        
                         int_input(&des, "Файл открыт. Хотите считать оттуда данные, заменив нынешнюю таблицу?(1 - да, любая другая строка - нет): ");
                         if (des == 1)
                         {
@@ -63,9 +70,13 @@ int main(void)
                     }
                     else
                     {
-                        rc = read_country_ind_arr(f, &arr);
-                        if (!rc)
-                            printf("Файл успешно считан.\n");
+                        int_input(&des, "Файл открыт. Хотите считать оттуда данные(1 - да, любая другая строка - нет): ");
+                        if (des == 1)
+                        {
+                            rc = read_country_ind_arr(f, &arr);
+                            if (!rc)
+                                printf("Файл успешно считан.\n");
+                        }
                     }   
                 }
             }
@@ -147,7 +158,7 @@ int main(void)
                 fopen(fname, "r+");
             }
             if (!rc)
-                printf("Успешно записано.");
+                printf("Успешно записано.\n");
             print_error(rc);
         }
         else if (action == 7)
