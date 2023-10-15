@@ -9,5 +9,7 @@
 #define ERR_NINIT_OBJ 5 
 #define ERR_FORMAT 6
 #define ERR_NULL_SIZE 7
+#define ERR_COMMAND 8
+#define ERR_WR_FNAME 9
 
 #endif

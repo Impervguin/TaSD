@@ -43,7 +43,13 @@ int mult(struct matrix_t *mat, struct vector_t *vec, struct vector_t *res)
         for (size_t j = mat->ia[i]; j < mat->ia[i + 1]; j++)
         {
             if (tmp[mat->jarr[j]])
-                sum += mat->arr[j] * vec->arr[mat->jarr[j]];
+            {
+                size_t ind = 0;
+                for (; vec->iarr[ind] < mat->jarr[j]; ind++);
+                if (vec->iarr[ind] == mat->jarr[j])
+                    sum += mat->arr[j] * vec->arr[ind];
+            }
+                
         }
         if (sum != 0)
         {
