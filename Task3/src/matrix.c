@@ -7,18 +7,22 @@ int create_matrix(struct matrix_t *mat)
     mat->ia = NULL;
     mat->arr = NULL;
     mat->jarr = NULL;
-    if ((mat->arr = calloc(mat->elems, sizeof(int))) == NULL)
-        return ERR_MEMORY;
+    if (mat->elems != 0)
+    {
+        if ((mat->arr = calloc(mat->elems, sizeof(int))) == NULL)
+            return ERR_MEMORY;
     
-    if ((mat->jarr = calloc(mat->elems, sizeof(size_t))) == NULL)
-    {
-        free_matrix(mat);
-        return ERR_MEMORY;
-    }
-    if ((mat->ia = calloc((mat->rows) + 1, sizeof(size_t))) == NULL)
-    {
-        free_matrix(mat);
-        return ERR_MEMORY;
+        if ((mat->jarr = calloc(mat->elems, sizeof(size_t))) == NULL)
+        {
+            free_matrix(mat);
+            return ERR_MEMORY;
+        }
+
+        if ((mat->ia = calloc((mat->rows) + 1, sizeof(size_t))) == NULL)
+        {
+            free_matrix(mat);
+            return ERR_MEMORY;
+        }
     }
     return OK;
 }
@@ -38,6 +42,9 @@ int read_matrix(FILE *f, struct matrix_t *mat)
     
     if (fscanf(f, "%zu%zu%zu", &(mat->rows), &(mat->cols), &(mat->elems)) != 3)
         return ERR_FORMAT;
+    
+    if (mat->rows == 0 || mat->cols == 0)
+        return ERR_NULL_SIZE;
     
     if ((rc = create_matrix(mat)))
         return rc;
@@ -65,8 +72,9 @@ int read_matrix(FILE *f, struct matrix_t *mat)
         mat->arr[i] = elem;
         mat->jarr[i] = col - 1;
         }
-    while (now_row < mat->rows)
-        mat->ia[++now_row] = mat->elems;
+    if (mat->elems != 0)
+        while (now_row < mat->rows)
+            mat->ia[++now_row] = mat->elems;
     return OK;
 }
 
