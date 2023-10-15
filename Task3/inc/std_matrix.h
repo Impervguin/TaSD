@@ -10,11 +10,11 @@ struct std_matrix_t
     int **matrix;
 };
 
-int create_std_matrix(std_matrix_t *mat);
-void free_std_matrix(std_matrix_t *mat);
-int read_std_matrix(FILE *f, std_matrix_t *mat);
-int print_std_matrix(FILE *f, std_matrix_t *mat);
-int write_std_matrix(FILE *f, std_matrix_t *mat);
-size_t count_std_matrix_size(std_matrix_t *mat);
+int create_std_matrix(struct std_matrix_t *mat);
+void free_std_matrix(struct std_matrix_t *mat);
+int read_std_matrix(FILE *f, struct std_matrix_t *mat);
+int print_std_matrix(FILE *f, struct std_matrix_t *mat);
+int write_std_matrix(FILE *f, struct std_matrix_t *mat);
+size_t count_std_matrix_size(struct std_matrix_t *mat);
 
 #endif

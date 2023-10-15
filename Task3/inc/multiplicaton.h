@@ -5,7 +5,7 @@
 #include "std_matrix.h"
 #include "std_vector.h"
 
-int mult_std(std_matrix_t *mat, std_vector_t *vec, std_vector_t *res);
-int mult(matrix_t *mat, vector_t *vec, vector_t *res);
+int mult_std(struct std_matrix_t *mat, struct std_vector_t *vec, struct std_vector_t *res);
+int mult(struct matrix_t *mat, struct vector_t *vec, struct vector_t *res);
 
 #endif
