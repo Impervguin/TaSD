@@ -116,3 +116,11 @@ int write_std_vector(FILE *f, struct std_vector_t *vec)
     
     return OK;
 }
+
+size_t count_std_vector_size(struct std_vector_t *vec)
+{
+    size_t size = 0;
+    size += sizeof(int) * vec->size;
+    size += sizeof(*vec);
+    return size;
+}

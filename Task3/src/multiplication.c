@@ -31,10 +31,10 @@ int mult(struct matrix_t *mat, struct vector_t *vec, struct vector_t *res)
     if (vec->elems == 0 || mat->elems == 0)
         return OK;
     
-    char tmp[vec->size];
-    memset(tmp, 0, vec->size);
+    size_t tmp[vec->size];
+    memset(tmp, 0, vec->size * sizeof(size_t));
     for (size_t i = 0; i < vec->elems; i++)
-        tmp[vec->iarr[i]] = 1;
+        tmp[vec->iarr[i]] = i + 1;
     
     size_t now_size = 0;
     for (size_t i = 0; i < mat->rows; i++)
@@ -44,10 +44,7 @@ int mult(struct matrix_t *mat, struct vector_t *vec, struct vector_t *res)
         {
             if (tmp[mat->jarr[j]])
             {
-                size_t ind = 0;
-                for (; vec->iarr[ind] < mat->jarr[j]; ind++);
-                if (vec->iarr[ind] == mat->jarr[j])
-                    sum += mat->arr[j] * vec->arr[ind];
+                sum += mat->arr[j] * vec->arr[tmp[mat->jarr[j]] - 1];
             }
                 
         }

@@ -7,6 +7,13 @@
 #include "std_matrix.h"
 #include "std_vector.h"
 #include "multiplicaton.h"
+#include <time.h>
+#include <sys/time.h>
+
+long int get_time(struct timeval *time_s, struct timeval *time_e)
+{
+    return (time_e -> tv_sec * 1000000 + time_e -> tv_usec) - (time_s -> tv_sec * 1000000 + time_s -> tv_usec);
+}
 
 #define FILE_INPUT 1
 #define USER_INPUT 0
@@ -33,6 +40,7 @@ void free_dyn_vars(std_matrix_t *std_mat, std_vector_t *std_vec, matrix_t *mat, 
 
 int main(void)
 {
+    long int mult_time, std_time;
     std_matrix_t std_mat;
     std_vector_t std_vec;
     std_vector_t std_res;
@@ -174,8 +182,8 @@ int main(void)
                         rc = read_std_vector(fvec, &std_vec, 0);
                         if (!rc)
                         {
-                            rewind(fmat);
-                            rc = read_vector(fmat, &vec, 0);
+                            rewind(fvec);
+                            rc = read_vector(fvec, &vec, 0);
                         }     
                     }
                 }
@@ -194,7 +202,19 @@ int main(void)
             }
             else if (command == COMPAR)
             {
-                rc = OK;
+                struct timeval time_s, time_e;
+                gettimeofday(&time_s, NULL);
+                rc = mult(&mat, &vec, &res);
+                gettimeofday(&time_e, NULL);
+                mult_time = get_time(&time_s, &time_e);
+
+                if (!rc)
+                {
+                    gettimeofday(&time_s, NULL);
+                    rc = mult_std(&std_mat, &std_vec, &std_res);
+                    gettimeofday(&time_e, NULL);
+                    std_time = get_time(&time_s, &time_e);
+                }
             }
         }
 
@@ -207,11 +227,19 @@ int main(void)
             }
             else if (command == STD_MULT)
             {
-                rc = print_std_vector(stdout, &std_res);
+                rc = write_std_vector(stdout, &std_res);
             }
             else if (command == COMPAR)
             {
-                rc = OK;
+                printf("Время стандартного умножения: %ld мкс.\n", std_time);
+                printf("Время умножения в CRS:  %ld мкс.\n", mult_time);
+                printf("\n");
+                printf("Размер обычного вектора: %zu байт.\n", count_std_vector_size(&std_vec));
+                printf("Размер CRS вектора: %zu байт.\n", count_vector_size(&vec));
+                printf("\n");
+                printf("Размер обычной матрицы: %zu байт.\n", count_std_matrix_size(&std_mat));
+                printf("Размер CRS матрицы: %zu байт.\n", count_matrix_size(&mat));
+
             }
             if (!rc)
                 running = 0;

@@ -79,7 +79,7 @@ int read_std_matrix(FILE *f, struct std_matrix_t *mat, int verbose)
             free_std_matrix(mat);
             return ERR_FORMAT;
         }
-        if (row > mat->rows || row == 0 || col > mat->cols || col == 0 || elem == 0 || mat->matrix[col - 1][row - 1])
+        if (row > mat->rows || row == 0 || col > mat->cols || col == 0 || elem == 0 || mat->matrix[row - 1][col - 1])
         {
             free_std_matrix(mat);
             return ERR_FORMAT;
@@ -160,3 +160,11 @@ int write_std_matrix(FILE *f, struct std_matrix_t *mat)
 //         }
 //     }
 // }
+
+size_t count_std_matrix_size(struct std_matrix_t *mat)
+{
+    size_t size = 0;
+    size += sizeof(int) * mat->rows * mat->cols;
+    size += sizeof(*mat);
+    return size;
+}

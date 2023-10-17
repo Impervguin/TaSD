@@ -75,7 +75,7 @@ int read_matrix(FILE *f, struct matrix_t *mat, int verbose)
             free_matrix(mat);
             return ERR_FORMAT;
         }
-        if (row > mat->rows || row == 0 || col > mat->cols || col == 0 || row - 1 < now_row || last_col >= col || elem == 0)
+        if (row > mat->rows || row == 0 || col > mat->cols || col == 0 || row - 1 < now_row || (last_col >= col && row - 1 == now_row) || elem == 0)
         {
             free_matrix(mat);
             return ERR_FORMAT;
@@ -198,4 +198,14 @@ int std_to_mat(std_matrix_t *std_mat, matrix_t *mat)
     if (elems)
         mat->ia[mat->rows - 1] = now_el;
     return OK;
+}
+
+size_t count_matrix_size(struct matrix_t *mat)
+{
+    size_t size = 0;
+    size += sizeof(int) * mat->elems;
+    size += sizeof(size_t) * mat->elems;
+    size += sizeof(size_t) * (mat->rows  + 1);
+    size += sizeof(*mat);
+    return size;
 }

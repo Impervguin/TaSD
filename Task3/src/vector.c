@@ -180,3 +180,12 @@ int std_to_vec(std_vector_t *std_vec, vector_t *vec)
     }
     return OK;
 }
+
+size_t count_vector_size(struct vector_t *vec)
+{
+    size_t size = 0;
+    size += sizeof(int) * vec->elems;
+    size += sizeof(size_t) * vec->elems;
+    size += sizeof(*vec);
+    return size;
+}
