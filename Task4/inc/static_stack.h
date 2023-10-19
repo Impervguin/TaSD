@@ -1,0 +1,23 @@
+#ifndef STATIC_STACK_H__
+#define STATIC_STACK_H__
+
+#include <stdio.h>
+
+typedef struct static_stack_t static_stack_t;
+
+#define STATIC_STACK_SIZE 128
+
+struct static_stack_t
+{
+    int *head_ptr;
+    int *end_ptr;
+    int arr[STATIC_STACK_SIZE];
+};
+
+void init_static_stack(static_stack_t *stack);
+int add_static_stack(static_stack_t *stack, int elem);
+int pop_static_stack(static_stack_t *stack, int *elem);
+int read_static_stack(FILE *f, static_stack_t *stack);
+int print_static_stack(FILE *f, const static_stack_t *stack);
+
+#endif
