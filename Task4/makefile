@@ -6,7 +6,7 @@ OUT := ./out
 Cflags := -std=c99 -Wall -Werror -Wpedantic -Wextra -Wfloat-equal -Wfloat-conversion -I$(INC)
 
 OBJflags := -I$(SRC) -c
-OBJS := $(addprefix $(OUT)/, static_stack.o)
+OBJS := $(addprefix $(OUT)/, static_stack.o list_stack.o)
 
 debug : Cflags += -g
 debug : clean
