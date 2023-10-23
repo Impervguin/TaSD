@@ -104,3 +104,11 @@ int static2list(const static_stack_t *static_stack, stack_node_t **list)
     *list = tmp;
     return OK;
 }
+
+int get_list_stack_memory(const stack_node_t *stack)
+{
+    int mem = sizeof(stack);
+    for (; stack != NULL; stack = stack->next)
+        mem += sizeof(*stack);
+    return mem;
+}

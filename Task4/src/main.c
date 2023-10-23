@@ -27,6 +27,7 @@ int main(void)
     stack_node_t *list_stack = NULL;
     struct timeval start, end;
     long static_time, list_time;
+    int static_mem, list_mem;
     static_stack_t static_op;
     init_static_stack(&static_op);
     static_stack_t static_nums;
@@ -164,6 +165,8 @@ int main(void)
 
                 if (!rc)
                 {
+                    static_mem = get_static_stack_memory(&static_nums) + get_static_stack_memory(&static_op);
+                    list_mem = get_list_stack_memory(list_nums) + get_list_stack_memory(list_op);
                     gettimeofday(&start, NULL);
                     rc = list_calc(&list_nums, &list_op, &res);
                     gettimeofday(&end, NULL);
@@ -182,6 +185,9 @@ int main(void)
                 {
                     printf("Время вычисления статического стека: %ld мкс.\n", static_time);
                     printf("Время вычисления списка-стека: %ld мкс.\n", list_time);
+                    printf("\n");
+                    printf("Объем памяти по статический стек: %d байт.\n", static_mem);
+                    printf("Объем памяти по список-стек: %d байт.\n", list_mem);
                 }
                 break;
             case PRINT:

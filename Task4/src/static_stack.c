@@ -57,3 +57,8 @@ int print_static_stack(FILE *f, const static_stack_t *stack)
     
     return OK;
 }
+
+int get_static_stack_memory(const static_stack_t *stack)
+{
+    return sizeof(stack->end_ptr) + sizeof(stack->head_ptr) + sizeof(int) * (stack->head_ptr - stack->arr + 1);
+}

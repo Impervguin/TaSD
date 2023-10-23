@@ -18,5 +18,6 @@ int pop_list_stack(stack_node_t **stack, int *data);
 int read_list_stack(FILE *f, stack_node_t **stack);
 int print_list_stack(FILE *f, const stack_node_t *stack);
 int static2list(const static_stack_t *static_stack, stack_node_t **list);
+int get_list_stack_memory(const stack_node_t *stack);
 
 #endif
