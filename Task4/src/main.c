@@ -1,6 +1,7 @@
 #include "static_stack.h"
 #include "list_stack.h"
 #include "errs.h"
+#include "operation.h"
 #include <stdio.h>
 
 int main(int argc, char **argv)
@@ -13,15 +14,18 @@ int main(int argc, char **argv)
         return 2;
     int rc;
     stack_node_t *stack = NULL;
-    rc = read_list_stack(f, &stack);
+    stack_node_t *ops = NULL;
+    rc = list_read_operation(f, &stack, &ops);
     printf("%d\n", rc);
     if (!rc)
     {
         int tmp;
-        pop_list_stack(&stack, &tmp);
-        print_list_stack(stdout, stack);
+        rc = list_calc(&stack, &ops, &tmp);
+        printf("%d\n", rc);
+        printf("%d\n", tmp);
     }
-    free_stack(stack);
+    free_stack(&stack);
+    free_stack(&ops);
     fclose(f);
     return OK;
 }

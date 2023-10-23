@@ -11,7 +11,7 @@ struct stack_node_t
     stack_node_t *next;
 };
 
-void free_stack(stack_node_t *stack);
+void free_stack(stack_node_t **stack);
 stack_node_t *create_stack_node(void);
 int add_list_stack(stack_node_t **stack, int data);
 int pop_list_stack(stack_node_t **stack, int *data);

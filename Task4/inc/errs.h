@@ -8,6 +8,8 @@
 #define ERR_FILE 4
 #define ERR_EMPTY_STACK 5
 #define ERR_FILE_IO 6
-
+#define ERR_ZERO_DIVISION 7
+#define ERR_UNKNOWN_OP 8
+#define ERR_OP_PARAMS 9
 
 #endif

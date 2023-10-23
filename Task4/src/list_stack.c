@@ -3,18 +3,19 @@
 #include "list_stack.h"
 #include "errs.h"
 
-void free_stack(stack_node_t *stack)
+void free_stack(stack_node_t **stack)
 {
-    if (stack == NULL)
+    if (*stack == NULL)
         return;
     
-    stack_node_t *now = stack;
+    stack_node_t *now = *stack;
     while (now != NULL)
     {
         stack_node_t *tmp = now->next;
         free(now);
         now = tmp;
     }
+    *stack = NULL;
 }
 
 stack_node_t *create_stack_node(void)
@@ -57,7 +58,7 @@ int read_list_stack(FILE *f, stack_node_t **stack)
     {
         if (add_list_stack(&tmp, elem))
         {
-            free_stack(tmp);
+            free_stack(&tmp);
             return ERR_MEMORY;
         }
     }
@@ -65,11 +66,11 @@ int read_list_stack(FILE *f, stack_node_t **stack)
 
     if (!feof(f))
     {
-        free_stack(tmp);
+        free_stack(&tmp);
         return ERR_FILE_IO;
     }
 
-    free_stack(*stack);
+    free_stack(stack);
     *stack = tmp;
     return OK;
 }
