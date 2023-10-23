@@ -3,10 +3,10 @@ SRC := ./src
 INC := ./inc
 OUT := ./out
 
-Cflags := -std=c99 -Wall -Werror -Wpedantic -Wextra -Wfloat-equal -Wfloat-conversion -I$(INC)
+Cflags := -std=gnu99 -Wall -Werror -Wpedantic -Wextra -Wfloat-equal -Wfloat-conversion -I$(INC)
 
 OBJflags := -I$(SRC) -c
-OBJS := $(addprefix $(OUT)/, static_stack.o list_stack.o operation.o)
+OBJS := $(addprefix $(OUT)/, static_stack.o list_stack.o operation.o io.o)
 
 debug : Cflags += -g
 debug : clean

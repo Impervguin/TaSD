@@ -11,5 +11,8 @@
 #define ERR_ZERO_DIVISION 7
 #define ERR_UNKNOWN_OP 8
 #define ERR_OP_PARAMS 9
+#define ERR_FORMAT 10
+#define ERR_COMMAND 11
+#define ERR_WR_FNAME 12
 
 #endif

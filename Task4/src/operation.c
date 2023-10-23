@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "operation.h"
 #include "static_stack.h"
 #include "list_stack.h"
 #include "errs.h"
+
 
 int list_read_operation(FILE *f, stack_node_t **nums, stack_node_t **ops)
 {
@@ -13,37 +15,40 @@ int list_read_operation(FILE *f, stack_node_t **nums, stack_node_t **ops)
     free_stack(nums);
     free_stack(ops);
 
-    int num;
-    int symb;
-    while (!rc)
-    {
-        if (fscanf(f, "%d", &num) != 1)
-        {
-            rc = ERR_FILE_IO;
-            break;
-        }
+    char *line = NULL;
+    size_t len = 0;
+    if (getline(&line, &len, f) == -1)
+        rc =  ERR_IO;
 
-        while ((symb = getc(f)) == ' ' || (symb == '\n'));
+    for (char *ptr = line; !rc;)
+    {
+        int num, bytes_read;
+        if (sscanf(ptr, "%d%n", &num, &bytes_read) != 1)
+            rc = ERR_FORMAT;
         
-        if (strchr("+-*/", symb) == NULL)
+        if (!rc)
         {
-            if (feof(f))
-            {
-                rc = add_list_stack(nums, num);
+            rc = add_list_stack(nums, num);
+            ptr += bytes_read;
+        }
+            
+        
+        if (!rc)
+        {
+            while (*ptr == ' ' || *ptr == '\n')
+                ptr++;
+        
+            if (*ptr == '\0')
                 break;
-            }
+            
+            if (strchr("+-/*", *ptr) == NULL)
+                rc = ERR_FORMAT;
             else
             {
-                rc = ERR_FILE_IO;
-                break;
+                rc = add_list_stack(ops, (int) *ptr);
+                ptr++;
             }
         }
-
-        if (add_list_stack(ops, symb) || add_list_stack(nums, num))
-        {
-            rc = ERR_MEMORY;
-            break;
-        }  
     }
     
     if (rc)
@@ -51,52 +56,55 @@ int list_read_operation(FILE *f, stack_node_t **nums, stack_node_t **ops)
         free_stack(nums);
         free_stack(ops);
     }
+    free(line);
     return rc;
 }
-
 
 int static_read_operation(FILE *f, static_stack_t *nums, static_stack_t *ops)
 {
     if (f == NULL)
         return ERR_FILE;
     int rc = OK;
-
     init_static_stack(nums);
     init_static_stack(ops);
 
-    int num;
-    int symb;
-    while (!rc)
-    {
-        if (fscanf(f, "%d", &num) != 1)
-        {
-            rc = ERR_FILE_IO;
-            break;
-        }
+    char *line = NULL;
+    size_t len = 0;
+    if (getline(&line, &len, f) == -1)
+        rc =  ERR_IO;
 
-        while ((symb = getc(f)) == ' ' || (symb == '\n'));
+    for (char *ptr = line; !rc;)
+    {
+        int num, bytes_read;
+        if (sscanf(ptr, "%d%n", &num, &bytes_read) != 1)
+            rc = ERR_FORMAT;
         
-        if (strchr("+-*/", symb) == NULL)
+        if (!rc)
         {
-            if (feof(f))
-            {
-                rc = add_static_stack(nums, num);
+            rc = add_static_stack(nums, num);
+            ptr += bytes_read;
+        }
+            
+        
+        if (!rc)
+        {
+            while (*ptr == ' ' || *ptr == '\n')
+                ptr++;
+        
+            if (*ptr == '\0')
                 break;
-            }
+            
+            if (strchr("+-/*", *ptr) == NULL)
+                rc = ERR_FORMAT;
             else
             {
-                rc = ERR_FILE_IO;
-                break;
+                rc = add_static_stack(ops, (int) *ptr);
+                ptr++;
             }
         }
-
-        if (add_static_stack(ops, symb) || add_static_stack(nums, num))
-        {
-            rc = ERR_STACK_OVERFLOW;
-            break;
-        }  
     }
     
+    free(line);
     return rc;
 }
 
@@ -145,14 +153,14 @@ int list_calc(stack_node_t **nums, stack_node_t **ops, int *res)
 
 int static_calc(static_stack_t *nums, static_stack_t *ops, int *res)
 {
-    if (nums->head_ptr < nums->arr || ops->end_ptr < ops->arr)
+    if (nums->head_ptr < nums->arr || ops->head_ptr < ops->arr)
         return ERR_EMPTY_STACK;
     int rc;
     int tmp;
     int op;
     pop_static_stack(nums, &tmp);
     *res = tmp;
-    while (nums->head_ptr >= nums->arr && ops->end_ptr >= ops->arr)
+    while (nums->head_ptr >= nums->arr && ops->head_ptr >= ops->arr)
     {
         if ((rc = pop_static_stack(ops, &op)))
             return rc;
@@ -181,7 +189,7 @@ int static_calc(static_stack_t *nums, static_stack_t *ops, int *res)
         }
     }
 
-    if (nums->head_ptr >= nums->arr || ops->end_ptr >= ops->arr)
+    if (nums->head_ptr >= nums->arr || ops->head_ptr >= ops->arr)
         return ERR_OP_PARAMS;
     return OK;
 }
