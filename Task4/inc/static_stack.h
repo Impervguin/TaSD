@@ -7,11 +7,12 @@ typedef struct static_stack_t static_stack_t;
 
 #define STATIC_STACK_SIZE 10010
 
+/// @brief Реализация стека с помощью статического массива
 struct static_stack_t
 {
-    int *head_ptr;
-    int *end_ptr;
-    int arr[STATIC_STACK_SIZE];
+    int *head_ptr; /// Указатель на голову стека
+    int *end_ptr; /// Указатель на конец статического массива
+    int arr[STATIC_STACK_SIZE]; /// Статический массив
 };
 
 void init_static_stack(static_stack_t *stack);

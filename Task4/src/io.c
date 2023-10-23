@@ -103,13 +103,31 @@ void print_error(int rc)
             printf("Ошибка при работе с файлом.\n");
             break;
         case ERR_FORMAT:
-            printf("Ошибка: Некорретный формат ввода.\n");
+            printf("Ошибка: Некорректный формат ввода.\n");
             break;
         case ERR_COMMAND:
             printf("Ошибка: Некорректная команда.\n");
             break;
         case ERR_WR_FNAME:
             printf("Ошибка: Неправильное имя файла.\n");
+            break;
+        case ERR_STACK_OVERFLOW:
+            printf("Ошибка: Стек переполнен.\n");
+            break;
+        case ERR_EMPTY_STACK:
+            printf("Ошибка: Стек пустой.\n");
+            break;
+        case ERR_FILE_IO:
+            printf("Ошибка файлового ввода/вывода.\n");
+            break;
+        case ERR_ZERO_DIVISION:
+            printf("Ошибка: Деление на ноль.\n");
+            break;
+        case ERR_OP_PARAMS:
+            printf("Ошибка: Некорректные параметры арифметической операции.\n");
+            break;
+        case ERR_UNKNOWN_OP:
+            printf("Ошибка: Неизвестная операция в стеке.\n");
             break;
         case OK:
             break;
