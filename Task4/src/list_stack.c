@@ -87,3 +87,20 @@ int print_list_stack(FILE *f, const stack_node_t *stack)
     
     return OK;
 }
+
+int static2list(const static_stack_t *static_stack, stack_node_t **list)
+{
+    stack_node_t *tmp = NULL;
+    for (const int *ptr = static_stack->arr; ptr <= static_stack->head_ptr; ptr++)
+    {
+        if (add_list_stack(&tmp, *ptr))
+        {
+            free_stack(&tmp);
+            return ERR_MEMORY;
+        }
+    }
+
+    free_stack(list);
+    *list = tmp;
+    return OK;
+}

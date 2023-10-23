@@ -25,6 +25,8 @@ int main(void)
     stack_node_t *list_op = NULL;
     stack_node_t *list_nums = NULL;
     stack_node_t *list_stack = NULL;
+    struct timeval start, end;
+    long static_time, list_time;
     static_stack_t static_op;
     init_static_stack(&static_op);
     static_stack_t static_nums;
@@ -121,12 +123,16 @@ int main(void)
                     }
                     else if (in_t == FILE_INPUT)
                     {
-                        if (stack_type == STATIC_STACK)
+                        rc = read_file(&f);
+                        if (!rc)
                         {
-                            rc = static_read_operation(f, &static_nums, &static_op);
+                            if (stack_type == STATIC_STACK)
+                            {
+                                rc = static_read_operation(f, &static_nums, &static_op);
+                            }
+                            else
+                                rc = list_read_operation(f, &list_nums, &list_op);
                         }
-                        else
-                            rc = list_read_operation(f, &list_nums, &list_op);
                     }
                     else
                         rc = ERR_FORMAT;
@@ -142,6 +148,41 @@ int main(void)
                 }
                 if (!rc)
                     printf("Результат выражения:%d\n", res);
+                break;
+
+            case COMPARE:
+                rc = read_file(&f);
+                if (!rc)
+                    rc = static_read_operation(f, &static_nums, &static_op);
+                
+                if (!rc)
+                {
+                    rc = static2list(&static_nums, &list_nums);
+                    if (!rc)
+                        rc = static2list(&static_op, &list_op);
+                }
+
+                if (!rc)
+                {
+                    gettimeofday(&start, NULL);
+                    rc = list_calc(&list_nums, &list_op, &res);
+                    gettimeofday(&end, NULL);
+                    list_time = get_time(&start, &end);
+
+                    if (!rc)
+                    {
+                        gettimeofday(&start, NULL);
+                        rc = static_calc(&static_nums, &static_op, &res);
+                        gettimeofday(&end, NULL);
+                        static_time = get_time(&start, &end);
+                    }
+                }
+
+                if (!rc)
+                {
+                    printf("Время вычисления статического стека: %ld мкс.\n", static_time);
+                    printf("Время вычисления списка-стека: %ld мкс.\n", list_time);
+                }
                 break;
             case PRINT:
                 if (stack_type == STATIC_STACK)
