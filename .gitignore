@@ -61,3 +61,4 @@ dkms.conf
 # Vs code
 
 */.vscode
+*/data
