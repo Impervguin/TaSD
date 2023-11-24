@@ -6,7 +6,7 @@ OUT := ./out
 Cflags := -std=gnu99 -Wall -Werror -Wpedantic -Wextra -Wfloat-equal -Wfloat-conversion -I$(INC)
 
 OBJflags := -I$(SRC) -c
-OBJS := $(addprefix $(OUT)/, btree.o)
+OBJS := $(addprefix $(OUT)/, btree.o static_stack.o list_stack.o io.o)
 
 debug : Cflags += -g
 debug : clean

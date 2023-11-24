@@ -10,5 +10,8 @@
 #define ERR_ZERO_DIVISION 7
 #define ERR_ALREADY_IN 8
 #define ERR_NOT_FOUND 9
+#define ERR_STACK_OVERFLOW 10
+#define ERR_EMPTY_STACK 11
+#define ERR_COMMAND 12
 
 #endif // ERRS_H__
