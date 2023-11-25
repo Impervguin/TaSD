@@ -155,12 +155,20 @@ int main(void)
                     btree_free(&calc_root);
                 }
                 break;
+            case SCALC:
+                rc = static_calculate_expression(A, B, C, D, E, F, G, H, I, &itmp);
+                if (!rc)
+                    printf("Результат вычисления: %d.\n", itmp);
+                break;
+            case LCALC:
+                rc = list_calculate_expression(A, B, C, D, E, F, G, H, I, &itmp);
+                if (!rc)
+                    printf("Результат вычисления: %d.\n", itmp);
+                break;
             case COMPARE:
                 rc = expression_in_btree(A, B, C, D, E, F, G, H, I, &calc_root);
                 if (rc)
                     break;
-                
-                
                 
                 clock_gettime(CLOCK_MONOTONIC_RAW, &st);
                 rc = btree_calculate(&calc_root, &itmp);

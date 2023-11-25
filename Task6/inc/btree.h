@@ -6,17 +6,19 @@ typedef struct btree_node btree_node;
 #define OPERATION_ID 1
 #define VALUE_ID 0
 
+/// @brief Структура узла бинарного дерева выражения
 struct btree_node
 {
-    btree_node *parent;
-    btree_node *left;
-    btree_node *right;
-    int data_id;
+    btree_node *parent; /// Указатель на родителя узла, для корня - NULL
+    btree_node *left; /// Указатель на левого потомка
+    btree_node *right; /// Указатель на правого потомка
+    int data_id; /// Переменная для определения информационной части узла.
+    /// Если VALUE_ID, то хранится число, Если OPERATION_ID, то хранится символ операции
     union 
     {
         int value;
         char op;
-    } data;
+    } data; /// Информационная часть узла
 };
 
 

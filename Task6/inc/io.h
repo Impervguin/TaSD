@@ -1,8 +1,8 @@
 #ifndef IO_H__
 #define IO_H__
 
-typedef enum {ADD = 1, FIND, DELETE, PREFIX, INFIX, POSTFIX, PRINT, CHANGE, CALC, COMPARE, EXIT = 0} command_t;
-#define MAX_COMMAND_NUM 10
+typedef enum {ADD = 1, FIND, DELETE, PREFIX, INFIX, POSTFIX, PRINT, CHANGE, CALC, SCALC, LCALC,  COMPARE, EXIT = 0} command_t;
+#define MAX_COMMAND_NUM 12
 
 /**
  * @brief Функция для чтения имени и открытия файла.

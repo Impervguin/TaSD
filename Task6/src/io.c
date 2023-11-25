@@ -21,7 +21,9 @@ void print_menu()
     printf("%d - Вывести постфиксный обход дерева.\n", POSTFIX);
     printf("%d - Вывести изображение дерева.\n", PRINT);
     printf("%d - Изменить переменные.\n", CHANGE);
-    printf("%d - Посчитать выражение.\n", CALC);
+    printf("%d - Посчитать выражение деревом.\n", CALC);
+    printf("%d - Посчитать выражение статическим стеком.\n", SCALC);
+    printf("%d - Посчитать выражение стеком-списком.\n", LCALC);
     printf("%d - Сравнение времени вычисления выражения в дереве и стеке.\n", COMPARE);
     printf("%d - Выход.\n", EXIT);
     // printf("Введите номер: ");
@@ -179,6 +181,18 @@ void print_error(int rc)
             break;
         case ERR_ZERO_DIVISION:
             printf("Ошибка: Деление на ноль.\n");
+            break;
+        case ERR_ALREADY_IN:
+            printf("Ошибка: Элемент уже существует.\n");
+            break;
+        case ERR_NOT_FOUND:
+            printf("Ошибка: Элемент не найден.\n");
+            break;
+        case ERR_EMPTY_STACK:
+            printf("Ошибка: пустой стек.\n");
+            break;
+        case ERR_STACK_OVERFLOW:
+            printf("Ошибка: переполнение стека.\n");
             break;
         case OK:
             break;
