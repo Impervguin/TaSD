@@ -1,0 +1,17 @@
+digraph main {
+n0[label="a"];
+n1[label="h"];
+n0 -> n1;
+n2[label="e"];
+n1 -> n2;
+n3[label="b"];
+n2 -> n3;
+n4[label="l"];
+n1 -> n4;
+n5[label="k"];
+n4 -> n5;
+n6[label="s"];
+n4 -> n6;
+n7[label="u"];
+n6 -> n7;
+}
