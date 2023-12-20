@@ -1,0 +1,23 @@
+digraph main {
+n0[label="Moscow"];
+n1[label="Saint-Petesburg"];
+n2[label="Kaluga"];
+n3[label="Novgorod"];
+n3[color="red"];
+n4[label="Kirov"];
+n4[color="red"];
+n5[label="Yaroslavl"];
+n5[color="red"];
+n0 -> n0;
+n0 -> n1;
+n0 -> n2;
+n0 -> n5;
+n1 -> n0;
+n1 -> n5;
+n1 -> n3;
+n2 -> n5;
+n2 -> n3;
+n4 -> n5;
+n4 -> n3;
+n5 -> n4;
+}
